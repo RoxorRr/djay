@@ -1,0 +1,6 @@
+{
+  "name": "VibeDeck AI DJ",
+  "description": "Pro single-deck DJ player with AI track recognition, artist facts, Speechify voice commentary, and bilingual English & Slovak party MC.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
