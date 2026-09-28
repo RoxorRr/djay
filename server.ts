@@ -69,16 +69,17 @@ app.post('/api/track/identify', async (req, res) => {
   try {
     const prompt = `
 You are a world-class party DJ, musicologist, and club host.
-A DJ on a mobile deck just loaded a track with the filename: "${filename || 'unknown'}"
-Hint Title: "${hintTitle || ''}"
-Hint Artist: "${hintArtist || ''}"
+A DJ on a mobile deck loaded a track:
+User Specified Song Title: "${hintTitle || ''}"
+User Specified Artist / Interpret: "${hintArtist || ''}"
+Original Filename: "${filename || 'unknown'}"
 Party Vibe: "${vibe}"
 
 Tasks:
-1. Identify the most likely exact Song Title and Artist from the filename or hints. If uncertain, infer from common music naming patterns or provide the cleanest title and artist name.
-2. Provide estimated BPM (typically 80-160), musical key (e.g. "8A / Am", "11B / A"), genre (e.g., "Tech House", "Pop Anthem", "Nu-Disco"), and release year.
-3. Provide 3 fascinating, crowd-pleasing trivia facts or backstories about this track or artist in ${langName}. Make them energetic and interesting for a party crowd.
-4. Write a punchy, 2-3 sentence DJ Voice Intro in ${langName} that the DJ's virtual hype-voice (Speechify MC) will announce right before the beat drops! It should sound like an authentic radio/festival host introducing this song to get the crowd dancing.
+1. If User Specified Song Title or Artist are provided, treat them as the authoritative track and artist name (clean up any capitalization or minor typos if needed). If empty, infer the exact Song Title and Artist from the filename.
+2. Provide accurate estimated BPM (typically 80-160 for dance/party music), musical key (e.g. "8A / Am", "11B / A"), genre (e.g., "Tech House", "Pop Anthem", "Nu-Disco", "Eurodance", "Hip-Hop"), and release year for this specific song and artist.
+3. Provide 3 fascinating, crowd-pleasing trivia facts or backstories about this track or artist in ${langName}. Make them energetic, factual, and interesting for a party crowd.
+4. Write a punchy, 2-3 sentence DJ Voice Intro in ${langName} mentioning the song title and artist, ready for the Speechify virtual DJ voice to drop right before the beat hits.
 5. Write a short 1-sentence DJ Outro transition in ${langName} signaling the handover to the next phone/deck.
 
 Return ONLY a JSON response matching the schema.

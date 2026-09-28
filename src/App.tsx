@@ -25,6 +25,7 @@ import { AiTriviaPanel } from './components/AiTriviaPanel';
 import { PartyCommentaryModal } from './components/PartyCommentaryModal';
 import { DualPhoneSyncModal } from './components/DualPhoneSyncModal';
 import { SettingsModal } from './components/SettingsModal';
+import { EditTrackModal } from './components/EditTrackModal';
 
 export default function App() {
   // --- Persistent Preferences ---
@@ -82,6 +83,7 @@ export default function App() {
   const [isPartyModalOpen, setIsPartyModalOpen] = useState(false);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isEditTrackModalOpen, setIsEditTrackModalOpen] = useState(false);
 
   // --- Live Toast for Party Callouts ---
   const [crowdAlert, setCrowdAlert] = useState<{ action: string; sfx: string } | null>(null);
@@ -242,6 +244,74 @@ export default function App() {
       );
     } catch (err) {
       console.error('Error re-analyzing:', err);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  // Save manual track title & artist edit, and optionally re-check with AI
+  const handleSaveTrack = async (
+    updated: { title: string; artist: string; genre?: string; bpm?: number },
+    recheckWithAi: boolean
+  ) => {
+    if (!currentTrack) return;
+
+    if (!recheckWithAi) {
+      setCurrentTrack((prev) =>
+        prev
+          ? {
+              ...prev,
+              title: updated.title,
+              artist: updated.artist,
+              genre: updated.genre || prev.genre,
+              bpm: updated.bpm || prev.bpm,
+            }
+          : null
+      );
+      return;
+    }
+
+    // Optimistically update the displayed song and artist
+    setCurrentTrack((prev) =>
+      prev
+        ? {
+            ...prev,
+            title: updated.title,
+            artist: updated.artist,
+            genre: updated.genre || prev.genre,
+            bpm: updated.bpm || prev.bpm,
+          }
+        : null
+    );
+
+    setIsAnalyzing(true);
+    try {
+      const aiResult = await identifyTrack({
+        filename: currentTrack.fileName || updated.title,
+        hintTitle: updated.title,
+        hintArtist: updated.artist,
+        language,
+        vibe: 'high energy party club',
+      });
+
+      setCurrentTrack((prev) =>
+        prev
+          ? {
+              ...prev,
+              title: aiResult.title || updated.title,
+              artist: aiResult.artist || updated.artist,
+              genre: aiResult.genre || updated.genre || prev.genre,
+              bpm: aiResult.bpm || updated.bpm || prev.bpm,
+              key: aiResult.key || prev.key,
+              year: aiResult.year || prev.year,
+              facts: aiResult.facts || prev.facts,
+              djIntro: aiResult.djIntro || prev.djIntro,
+              djOutro: aiResult.djOutro || prev.djOutro,
+            }
+          : null
+      );
+    } catch (err) {
+      console.error('Error re-checking with AI after edit:', err);
     } finally {
       setIsAnalyzing(false);
     }
@@ -528,6 +598,7 @@ export default function App() {
           onPlayIntro={handlePlayIntro}
           onStopVoice={handleStopVoice}
           onReanalyze={handleReanalyze}
+          onOpenEditModal={() => setIsEditTrackModalOpen(true)}
         />
 
         {/* Section 4: Track Uploader & Demo Bangers */}
@@ -543,6 +614,15 @@ export default function App() {
       </main>
 
       {/* Modals */}
+      <EditTrackModal
+        isOpen={isEditTrackModalOpen}
+        onClose={() => setIsEditTrackModalOpen(false)}
+        language={language}
+        track={currentTrack}
+        isAnalyzing={isAnalyzing}
+        onSaveTrack={handleSaveTrack}
+      />
+
       <PartyCommentaryModal
         isOpen={isPartyModalOpen}
         onClose={() => setIsPartyModalOpen(false)}

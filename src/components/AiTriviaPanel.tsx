@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Mic, Volume2, Square, RefreshCw, Info, Tag } from 'lucide-react';
+import { Sparkles, Mic, Volume2, Square, RefreshCw, Info, Tag, Pencil } from 'lucide-react';
 import { TrackMetadata, Language } from '../types';
 import { getTranslation } from '../locales/translations';
 
@@ -11,6 +11,7 @@ interface AiTriviaPanelProps {
   onPlayIntro: () => void;
   onStopVoice: () => void;
   onReanalyze: () => void;
+  onOpenEditModal: () => void;
 }
 
 export const AiTriviaPanel: React.FC<AiTriviaPanelProps> = ({
@@ -21,6 +22,7 @@ export const AiTriviaPanel: React.FC<AiTriviaPanelProps> = ({
   onPlayIntro,
   onStopVoice,
   onReanalyze,
+  onOpenEditModal,
 }) => {
   const t = getTranslation(language);
 
@@ -38,11 +40,29 @@ export const AiTriviaPanel: React.FC<AiTriviaPanelProps> = ({
               {t.loadedTrack}
             </span>
           </div>
-          <h2 className="text-lg sm:text-xl font-bold font-['Chakra_Petch',sans-serif] text-white tracking-wide mt-0.5">
-            {track.title}
-          </h2>
-          <div className="text-sm font-medium text-neutral-300">
-            {track.artist}
+
+          <div className="flex items-center gap-2 mt-0.5">
+            <h2 className="text-lg sm:text-xl font-bold font-['Chakra_Petch',sans-serif] text-white tracking-wide">
+              {track.title}
+            </h2>
+            <button
+              onClick={onOpenEditModal}
+              title={t.editTrack}
+              className="p-1 rounded-md bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-cyan-400 border border-neutral-700/80 transition-colors cursor-pointer"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2.5 text-sm font-medium text-neutral-300">
+            <span>{track.artist}</span>
+            <span aria-hidden="true" className="text-neutral-600">·</span>
+            <button
+              onClick={onOpenEditModal}
+              className="text-xs font-mono text-cyan-400 hover:text-cyan-300 hover:underline cursor-pointer flex items-center gap-1"
+            >
+              <span>{t.editTrack}</span>
+            </button>
           </div>
         </div>
 
